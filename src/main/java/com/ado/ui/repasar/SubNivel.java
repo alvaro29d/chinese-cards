@@ -1,6 +1,10 @@
 package com.ado.ui.repasar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ado.domain.Nivel;
+import com.ado.domain.Palabra;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -17,6 +21,7 @@ public class SubNivel extends VerticalLayout {
 	private Button btnPrueba = new Button();
 
 	private Nivel nivel;
+	private List<Palabra> palabras = new ArrayList<Palabra>();
 
 	private int inicio;
 	
@@ -39,6 +44,11 @@ public class SubNivel extends VerticalLayout {
 		setComponentAlignment(lblRango, Alignment.TOP_CENTER);
 		setComponentAlignment(botonera, Alignment.TOP_CENTER);
 		
+		for(int i = inicio * numeroPalabras; i < (inicio * numeroPalabras) + numeroPalabras; i++){
+			System.out.println("inicio: " + (inicio * numeroPalabras) + " hasta: " + ((inicio * numeroPalabras) + numeroPalabras -1) + " i: "+ i);
+			palabras.add(nivel.getPalabras().get(i));
+		}
+		
 	}
 
 	public int getInicio() {
@@ -47,6 +57,10 @@ public class SubNivel extends VerticalLayout {
 
 	public Nivel getNivel() {
 		return nivel;
+	}
+	
+	public List<Palabra> getPalabras() {
+		return palabras;
 	}
 	
 }

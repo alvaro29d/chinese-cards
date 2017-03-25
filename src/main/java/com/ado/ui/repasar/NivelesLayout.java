@@ -72,7 +72,7 @@ public class NivelesLayout extends VerticalLayout {
 		GridLayout gl = new GridLayout();
 		gl.setSpacing(true);
 		gl.setColumns(5);
-		for(int i = 0; i * PALABRAS_POR_NIVEL < nivel.getPalabras().size(); i++) {
+		for(int i = 0; i < nivel.getPalabras().size()/PALABRAS_POR_NIVEL; i++) {
 			gl.addComponent(new SubNivel(nivel, i, PALABRAS_POR_NIVEL, btnEstudiarClickListener, btnPruebaClickListener));
 		}
 		return gl;
@@ -85,9 +85,7 @@ public class NivelesLayout extends VerticalLayout {
 			UI.getCurrent().addWindow(pruebaLayout);
 			SubNivel sn= (SubNivel) event.getButton().getParent().getParent();
 			List<Palabra> palabrasSesion = new ArrayList<Palabra>();
-			for(int i = sn.getInicio(); i <= PALABRAS_POR_NIVEL ; i++) {
-				palabrasSesion.add(sn.getNivel().getPalabras().get(i));
-			}
+			palabrasSesion.addAll(sn.getPalabras());
 			pruebaLayout.setDatos(palabrasSesion);
 		}
 	};
@@ -99,10 +97,8 @@ public class NivelesLayout extends VerticalLayout {
 			UI.getCurrent().addWindow(estudiarLayout);
 			SubNivel sn= (SubNivel) event.getButton().getParent().getParent();
 			List<Palabra> palabrasSesion = new ArrayList<Palabra>();
-			for(int i = sn.getInicio(); i <= PALABRAS_POR_NIVEL ; i++) {
-				palabrasSesion.add(sn.getNivel().getPalabras().get(i));
-			}
-			estudiarLayout.setDatos(sn.getNivel().getPalabras());
+			palabrasSesion.addAll(sn.getPalabras());
+			estudiarLayout.setDatos(palabrasSesion);
 		}
 	};
 	
