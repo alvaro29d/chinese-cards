@@ -1,0 +1,1 @@
+web:    java -jar target/chinese-0.0.1-SNAPSHOT.jar
