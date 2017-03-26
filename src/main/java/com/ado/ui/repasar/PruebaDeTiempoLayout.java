@@ -1,9 +1,10 @@
 package com.ado.ui.repasar;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,8 +20,11 @@ import com.ado.ui.estudiar.EstudiarLayout;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
@@ -31,30 +35,30 @@ public class PruebaDeTiempoLayout extends Window {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PruebaDeTiempoLayout.class);
+
+	private static final int INTENTOS_MINIMOS = 8;
 	
 	enum MODO {NORMAL,MUERTE_SUBITA}
 	
 	@Autowired
 	private EstudiarLayout estudiarLayout;
-	
 	@Autowired
 	private BarraTiempo barraTiempo;
-	
 	private VerticalLayout mainLayout = new VerticalLayout();
-	private Label lblCaracter = new Label();
-	
 	private VerticalLayout lyOpciones = new VerticalLayout();
+	
+	private Label lblCaracter = new Label();
+	private Label lblPalabrasRestantes = new Label();
 	private MultilineButton[] opciones = new MultilineButton[8];
+
 	private List<Palabra> palabrasSesion = new ArrayList<Palabra>();
-	private Set<Palabra> errores = new LinkedHashSet<Palabra>();
-	boolean attach;
-
-	
-	
+	private Set<Palabra> palabrasMuerteSubita = new LinkedHashSet<Palabra>();
 	private int opcionCorrecta;
-
+	private Set<Palabra> errores = new LinkedHashSet<Palabra>();
 	private MODO modo;
-
+	private int intentos;
+	
+	boolean attach;
 	
 	public PruebaDeTiempoLayout() {
 		
@@ -62,46 +66,18 @@ public class PruebaDeTiempoLayout extends Window {
 	
 	public void setDatos(List<Palabra> palabras) {
 		palabrasSesion.clear();
-		palabrasSesion.addAll(palabras);
-		errores.clear();
-//		for(int i = inicio; i <= palabrasPorNivel ; i++) {
+//		for(int i = 0 ; i < 8 ; i++){
 //			palabrasSesion.add(palabras.get(i));
 //		}
-		this.modo = MODO.NORMAL;
-		barraTiempo.setSpeed(0.05f);
+		palabrasSesion.addAll(palabras);
+		initModoNormal();
 		cargarEjercicio();
 	}
-	
-	private void cargarEjercicio() {
-		LOGGER.debug("cargarEjercicio");
-		Set<Palabra> listaEjercicio = new HashSet<Palabra>();
-		while(listaEjercicio.size() < 8) {
-			listaEjercicio.add(palabrasSesion.get(RandomUtils.nextInt(0, palabrasSesion.size())));
-		}
-		this.opcionCorrecta = RandomUtils.nextInt(0,8);
-		Iterator<Palabra> iterator = listaEjercicio.iterator();
-		for (int i = 0; i < 8; i++) {
-			Palabra next = iterator.next();
-			opciones[i].addLayoutClickListener(btnOpcionLayoutClickListener);
-			opciones[i].setEnabled(true);
-			opciones[i].setPalabra(next);
-			if(i == opcionCorrecta){
-				lblCaracter.setValue(next.getPalabra());
-			}
-		}
-		if(modo == MODO.NORMAL) {
-			barraTiempo.refreshTime();
-			barraTiempo.setSpeed(barraTiempo.getSpeed());
-//			barraTiempo.setSpeed(barraTiempo.getSpeed() + 0.01f);
-		} else {
-			barraTiempo.addTime(0.4f);
-		}
-		
-	}
-	
+
 	@Override
 	public void attach() {
 		super.attach();
+		modo = MODO.NORMAL;
 		if(!attach) {
 			build();
 			setListeners();
@@ -114,19 +90,47 @@ public class PruebaDeTiempoLayout extends Window {
 		setResizable(false);
 		setWidth("800px");
 		setModal(true);
-		lblCaracter.setWidthUndefined();
-		lblCaracter.setStyleName(ValoTheme.LABEL_H1);
+		
 		HorizontalLayout hlSpacer = new HorizontalLayout();
 		hlSpacer.setHeight("10px");
 		
 		mainLayout.removeAllComponents();
-		mainLayout.addComponent(lblCaracter);
+		mainLayout.addComponent(initHeader());
 		mainLayout.addComponent(initBarraTiempo());
 		mainLayout.addComponent(initOpciones());
 		mainLayout.addComponent(hlSpacer);
-		mainLayout.setComponentAlignment(lblCaracter, Alignment.MIDDLE_CENTER);
+//		mainLayout.setComponentAlignment(lblCaracter, Alignment.MIDDLE_CENTER);
 		mainLayout.setComponentAlignment(initBarraTiempo(), Alignment.MIDDLE_CENTER);
 		mainLayout.setComponentAlignment(lyOpciones, Alignment.MIDDLE_CENTER);
+	}
+	
+	private com.vaadin.ui.Component initHeader() {
+		GridLayout header = new GridLayout();
+		header.setColumns(3);
+		header.setWidth("780px");
+		
+		
+		VerticalLayout left = new VerticalLayout();
+		left.setWidth("260px");
+		VerticalLayout center = new VerticalLayout();
+		center.setWidth("260px");
+		VerticalLayout right = new VerticalLayout();
+		right.setWidth("260px");
+
+		lblPalabrasRestantes.setWidthUndefined();
+		lblPalabrasRestantes.setStyleName(ValoTheme.LABEL_H1);
+		lblCaracter.setWidthUndefined();
+		lblCaracter.setStyleName(ValoTheme.LABEL_H1);
+		
+		left.addComponent(lblPalabrasRestantes);
+		center.addComponent(lblCaracter);
+		header.addComponent(left);
+		header.addComponent(center);
+		header.addComponent(right);
+		header.setColumnExpandRatio(2, 0f);
+		left.setComponentAlignment(lblPalabrasRestantes, Alignment.MIDDLE_CENTER);
+		center.setComponentAlignment(lblCaracter, Alignment.MIDDLE_CENTER);
+		return header;
 	}
 
 	private BarraTiempo initBarraTiempo() {
@@ -192,15 +196,32 @@ public class PruebaDeTiempoLayout extends Window {
 		}
 	};
 
+	
+
 	private void seleccionarOpcion(MultilineButton opcionSeleccionada) {
+		intentos++;
 		if(opciones[opcionCorrecta] == opcionSeleccionada) {
-			cargarEjercicio();
+			System.out.println("intentos: " + intentos + " errores: " + errores.size());
+			if(modo == MODO.NORMAL && intentos >= INTENTOS_MINIMOS && (errores.size() ==  0 || intentos/errores.size() > 9)){
+				initModoMuerteSubita();
+			}
+			if(palabrasMuerteSubita.size() == palabrasSesion.size()) {
+				Notification.show("Felicidades, pasaste el nivel!", Type.HUMANIZED_MESSAGE);
+				this.close();
+			} else {
+				cargarEjercicio();
+			}
 		} else {
-			errores.add(opciones[opcionCorrecta].getPalabra());
-			opcionSeleccionada.removeLayoutClickListener(btnOpcionLayoutClickListener);
-			opcionSeleccionada.setEnabled(false);
-			deshabilitarOtro();
+			if(modo == MODO.MUERTE_SUBITA) {
+				gameOver();
+			} else {
+				errores.add(opciones[opcionCorrecta].getPalabra());
+				opcionSeleccionada.removeLayoutClickListener(btnOpcionLayoutClickListener);
+				opcionSeleccionada.setEnabled(false);
+				deshabilitarOtro();
+			}
 		}
+		
 	}
 
 	private void deshabilitarOtro() {
@@ -213,11 +234,83 @@ public class PruebaDeTiempoLayout extends Window {
 		}
 	}
 	
+	private void cargarEjercicio() {
+		LOGGER.debug("cargarEjercicio");
+		Palabra palabraNueva = getPalabraNueva();
+		Set<Palabra> setEjercicio = new LinkedHashSet<Palabra>();
+		setEjercicio.add(palabraNueva);
+		while(setEjercicio.size() < 8) {
+			setEjercicio.add(palabrasSesion.get(RandomUtils.nextInt(0, palabrasSesion.size())));
+		}
+		
+		LinkedList<Palabra> listaEjercicio = new LinkedList<Palabra>(setEjercicio);
+		Collections.shuffle(listaEjercicio);
+		
+		Iterator<Palabra> iterator = listaEjercicio.iterator();
+		for (int i = 0; i < 8; i++) {
+			Palabra next = iterator.next();
+			opciones[i].addLayoutClickListener(btnOpcionLayoutClickListener);
+			opciones[i].setEnabled(true);
+			opciones[i].setPalabra(next);
+			if(palabraNueva == opciones[i].getPalabra()){
+				lblCaracter.setValue(next.getPalabra());
+				this.opcionCorrecta = i; 
+			}
+		}
+		
+		if(modo == MODO.NORMAL) {
+			barraTiempo.setTime(1f);
+			barraTiempo.setSpeed(barraTiempo.getSpeed() + 0.001f);
+			
+		} else {
+			barraTiempo.addTime(0.4f);
+			barraTiempo.setSpeed(barraTiempo.getSpeed() + 0.002f);
+			lblPalabrasRestantes.setValue(String.valueOf(palabrasSesion.size() - palabrasMuerteSubita.size() + 1));
+		}
+		
+	}
+
+	private Palabra getPalabraNueva() {
+		Palabra palabraNueva = new Palabra();
+		if(modo == MODO.NORMAL){
+			palabraNueva = palabrasSesion.get(RandomUtils.nextInt(0, palabrasSesion.size()));
+		} else {
+			int cantMuerteSubita = palabrasMuerteSubita.size();
+			while(palabrasMuerteSubita.size() == cantMuerteSubita) {
+				int indexPalabraNueva = RandomUtils.nextInt(0,palabrasSesion.size());
+				palabraNueva = palabrasSesion.get(indexPalabraNueva);
+				System.out.println(palabraNueva.getPingin());
+				palabrasMuerteSubita.add(palabraNueva);
+			}
+			System.out.println("nro muerte subita: " + palabrasMuerteSubita.size() + " palabraNueva: " + palabraNueva.getPingin());
+		}
+		return palabraNueva;
+	}
+	
 	public void gameOver() {
 		errores.add(opciones[opcionCorrecta].getPalabra());
 		((com.ado.ChineseApplication.VaadinUI)getParent()).addWindow(estudiarLayout);
 		close();
 		estudiarLayout.setDatos(new ArrayList<Palabra>(errores));
+	}
+	
+	private void initModoNormal() {
+		System.out.println("initNormal");
+		errores.clear();
+		intentos = 0;
+		this.modo = MODO.NORMAL;
+		barraTiempo.refreshTime();
+		lblPalabrasRestantes.setVisible(false);
+		palabrasMuerteSubita.clear();
+	}
+	
+	private void initModoMuerteSubita() {
+		System.out.println("initMuerteSubita, errores: " + errores.size() + " intentos: "+ intentos);
+		this.modo = MODO.MUERTE_SUBITA;
+		barraTiempo.refreshTime();
+		lblPalabrasRestantes.setVisible(true);
+		lblPalabrasRestantes.setValue(String.valueOf(palabrasSesion.size()));
+		palabrasMuerteSubita.clear();
 	}
 	
 

@@ -22,15 +22,16 @@ public class BarraTiempo extends HorizontalLayout {
 	}
 	
 	public void refreshTime() {
-		barraTiempo.setValue(1.0f);
+		barraTiempo.setValue(1f);
+		speed = 0.05f;
 	}
 	
 	public void addTime(float tiempo) {
-		barraTiempo.setValue(barraTiempo.getValue() + tiempo);
-	}
-	
-	public void setModoMuerteSubita() {
-		
+		if(barraTiempo.getValue()+ tiempo > 1.0) {
+			barraTiempo.setValue(1f);
+		} else {
+			barraTiempo.setValue(barraTiempo.getValue() + tiempo);
+		}
 	}
 	
 	@Override
@@ -46,6 +47,7 @@ public class BarraTiempo extends HorizontalLayout {
 		setHeight("38px");
 		barraTiempo.setWidth("600px");
 		barraTiempo.setValue(1.0f);
+		
 		addComponent(barraTiempo);
 		setComponentAlignment(barraTiempo, Alignment.TOP_CENTER);
 		
@@ -65,6 +67,7 @@ public class BarraTiempo extends HorizontalLayout {
 					}
 					barraTiempo.setValue(barraTiempo.getValue() - speed);
 				}
+				refreshTime();
 				((PruebaDeTiempoLayout)BarraTiempo.this.getParent().getParent()).gameOver();
 			}
 		}.start();
@@ -77,5 +80,9 @@ public class BarraTiempo extends HorizontalLayout {
 	public float getSpeed(){
 		return speed;
 	} 
+	
+	public void setTime(float value) {
+		barraTiempo.setValue(value);
+	}
 
 }

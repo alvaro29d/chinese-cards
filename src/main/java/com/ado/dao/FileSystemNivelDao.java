@@ -36,10 +36,19 @@ public class FileSystemNivelDao implements NivelDao {
 		Nivel nivelHsk4 = new Nivel();
 		nivelHsk4.setNombre("HSK4");
 		nivelHsk4.getPalabras().addAll(getPalabrasByNivel("HSK4"));
+		Nivel nivelHsk5 = new Nivel();
+		nivelHsk5.setNombre("HSK5");
+		nivelHsk5.getPalabras().addAll(getPalabrasByNivel("HSK5"));
+		Nivel nivelHsk6 = new Nivel();
+		nivelHsk6.setNombre("HSK6");
+		nivelHsk6.getPalabras().addAll(getPalabrasByNivel("HSK6"));
+		
 		niveles.add(nivelHsk1);
 		niveles.add(nivelHsk2);
 		niveles.add(nivelHsk3);
 		niveles.add(nivelHsk4);
+		niveles.add(nivelHsk5);
+		niveles.add(nivelHsk6);
 		
 		
 		return niveles;
