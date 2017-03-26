@@ -45,7 +45,6 @@ public class SubNivel extends VerticalLayout {
 		setComponentAlignment(botonera, Alignment.TOP_CENTER);
 		
 		for(int i = inicio * numeroPalabras; i < (inicio * numeroPalabras) + numeroPalabras; i++){
-			System.out.println("inicio: " + (inicio * numeroPalabras) + " hasta: " + ((inicio * numeroPalabras) + numeroPalabras -1) + " i: "+ i);
 			palabras.add(nivel.getPalabras().get(i));
 		}
 		

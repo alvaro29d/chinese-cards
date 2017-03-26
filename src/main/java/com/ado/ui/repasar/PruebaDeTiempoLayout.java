@@ -21,7 +21,6 @@ import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
@@ -69,6 +68,7 @@ public class PruebaDeTiempoLayout extends Window {
 //			palabrasSesion.add(palabras.get(i));
 //		}
 		this.modo = MODO.NORMAL;
+		barraTiempo.setSpeed(0.05f);
 		cargarEjercicio();
 	}
 	
@@ -82,6 +82,7 @@ public class PruebaDeTiempoLayout extends Window {
 		Iterator<Palabra> iterator = listaEjercicio.iterator();
 		for (int i = 0; i < 8; i++) {
 			Palabra next = iterator.next();
+			opciones[i].addLayoutClickListener(btnOpcionLayoutClickListener);
 			opciones[i].setEnabled(true);
 			opciones[i].setPalabra(next);
 			if(i == opcionCorrecta){
@@ -90,6 +91,8 @@ public class PruebaDeTiempoLayout extends Window {
 		}
 		if(modo == MODO.NORMAL) {
 			barraTiempo.refreshTime();
+			barraTiempo.setSpeed(barraTiempo.getSpeed());
+//			barraTiempo.setSpeed(barraTiempo.getSpeed() + 0.01f);
 		} else {
 			barraTiempo.addTime(0.4f);
 		}
@@ -104,14 +107,14 @@ public class PruebaDeTiempoLayout extends Window {
 			setListeners();
 		}
 	}
-
 		
 	private void build() {
 		setContent(mainLayout);
-		setClosable(true);
+		setClosable(false);
+		setResizable(false);
 		setWidth("800px");
 		setModal(true);
-		lblCaracter.setWidth("100px");
+		lblCaracter.setWidthUndefined();
 		lblCaracter.setStyleName(ValoTheme.LABEL_H1);
 		HorizontalLayout hlSpacer = new HorizontalLayout();
 		hlSpacer.setHeight("10px");
@@ -175,48 +178,45 @@ public class PruebaDeTiempoLayout extends Window {
 	private void setListeners() {
 		this.attach = true;
 		for(MultilineButton opcion : opciones) {
-			opcion.addLayoutClickListener(btnOpcionAddLayoutClickListener);
+			opcion.addLayoutClickListener(btnOpcionLayoutClickListener);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	private LayoutClickListener btnOpcionAddLayoutClickListener = new LayoutClickListener() {
+	private LayoutClickListener btnOpcionLayoutClickListener = new LayoutClickListener() {
 		@Override
 		public void layoutClick(LayoutClickEvent event) {
 			LOGGER.debug("Seleccion tarjeta");
-			if(opciones[opcionCorrecta] == event.getSource()) {
-				ejercicioResuelto();
-			} else {
-				for(int i = 0; i < 8; i++) {
-					if(!opciones[i].isEnabled()) {
-						errores.add(opciones[opcionCorrecta].getPalabra());
-					}
-				}
-				errores.add(((MultilineButton)event.getSource()).getPalabra());
-				
-				((MultilineButton)event.getSource()).setEnabled(false);
-				deshabilitarOtro();
-			}
-		}
-		
-		private void deshabilitarOtro() {
-			int deshabilitar = RandomUtils.nextInt(0,8);
-			for(int i = deshabilitar; i< deshabilitar + 8; i++) {
-				if(opciones[i%8].isEnabled() && opcionCorrecta !=i%8){
-					opciones[i%8].setEnabled(false);
-					i = deshabilitar + 8;
-				}
-			}
-		}
-		
-		private void ejercicioResuelto() {
-			cargarEjercicio();
+			MultilineButton opcionSeleccionada = (MultilineButton)event.getSource();
+			seleccionarOpcion(opcionSeleccionada);
 		}
 	};
+
+	private void seleccionarOpcion(MultilineButton opcionSeleccionada) {
+		if(opciones[opcionCorrecta] == opcionSeleccionada) {
+			cargarEjercicio();
+		} else {
+			errores.add(opciones[opcionCorrecta].getPalabra());
+			opcionSeleccionada.removeLayoutClickListener(btnOpcionLayoutClickListener);
+			opcionSeleccionada.setEnabled(false);
+			deshabilitarOtro();
+		}
+	}
+
+	private void deshabilitarOtro() {
+		int deshabilitar = RandomUtils.nextInt(0,8);
+		for(int i = deshabilitar; i < deshabilitar + 8; i++) {
+			if(opciones[i%8].isEnabled() && opcionCorrecta !=i%8){
+				opciones[i%8].setEnabled(false);
+				i = deshabilitar + 8;
+			}
+		}
+	}
 	
 	public void gameOver() {
+		errores.add(opciones[opcionCorrecta].getPalabra());
+		((com.ado.ChineseApplication.VaadinUI)getParent()).addWindow(estudiarLayout);
 		close();
-		UI.getCurrent().addWindow(estudiarLayout);
 		estudiarLayout.setDatos(new ArrayList<Palabra>(errores));
 	}
 	

@@ -47,6 +47,7 @@ public class EstudiarLayout extends Window {
 	private void build() {
 		setContent(mainLayout);
 		setClosable(true);
+		setResizable(false);
 		setWidth("800px");
 		setHeight("632px");
 		setModal(true);

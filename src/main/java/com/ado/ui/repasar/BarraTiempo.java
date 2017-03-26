@@ -15,8 +15,8 @@ public class BarraTiempo extends HorizontalLayout {
 	
 	private ProgressBar barraTiempo = new ProgressBar();
 
-	private float speed = 0.1f;
-	
+	private float speed = 0.05f;
+
 	public BarraTiempo() {
 		
 	}
@@ -30,10 +30,6 @@ public class BarraTiempo extends HorizontalLayout {
 	}
 	
 	public void setModoMuerteSubita() {
-		
-	}
-	
-	public void setSpeed(long speed){
 		
 	}
 	
@@ -57,7 +53,6 @@ public class BarraTiempo extends HorizontalLayout {
 		launchProgressUpdater(UI.getCurrent());
 	}
 	
-	
 	private void launchProgressUpdater(UI ui) {
 		new Thread() {
 			@Override
@@ -73,9 +68,14 @@ public class BarraTiempo extends HorizontalLayout {
 				((PruebaDeTiempoLayout)BarraTiempo.this.getParent().getParent()).gameOver();
 			}
 		}.start();
-	
     }
 	
+	public void setSpeed(float speed){
+		this.speed = speed;
+	}
 	
+	public float getSpeed(){
+		return speed;
+	} 
 
 }
