@@ -1,5 +1,7 @@
 package com.ado;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,6 +42,12 @@ public class ChineseApplication {
 		
 		@Override
 		protected void init(VaadinRequest request) {
+			String userId = request.getParameter("user");
+			if(userId == null || userId.isEmpty()){
+				userId = UUID.randomUUID().toString();
+			}
+
+			nivelesLayout.setUserId(userId);
 			setContent(mainLayout);
 			setSizeFull();
 
@@ -53,6 +61,8 @@ public class ChineseApplication {
 			mainLayout.setComponentAlignment(content, Alignment.TOP_CENTER);
 			content.setSizeUndefined();
 			content.addComponent(nivelesLayout);
+			
+			
 		}
 
 		@SuppressWarnings("serial")

@@ -5,20 +5,17 @@ import java.util.List;
 
 public class Nivel {
 
-	private String nombre;
+	private NivelEnum nivel;
 	private String descripcion;
 	private String idioma;
 	private List<Palabra> palabras;
+	private List<Boolean> progreso;
 	
 	public Nivel() {
 	}
 
 	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+		return nivel.name();
 	}
 
 	public String getDescripcion() {
@@ -44,6 +41,19 @@ public class Nivel {
 		return palabras;
 	}
 	
-	
+	public List<Boolean> getProgreso() {
+		if(progreso == null) {
+			this.progreso = new ArrayList<Boolean>();
+		}
+		return progreso;
+	}
+
+	public NivelEnum getNivel() {
+		return nivel;
+	}
+
+	public void setNivel(NivelEnum nivel) {
+		this.nivel = nivel;
+	}
 	
 }

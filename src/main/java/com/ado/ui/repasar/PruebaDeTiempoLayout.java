@@ -14,8 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.vaadin.dialogs.ConfirmDialog;
 
+import com.ado.domain.NivelEnum;
 import com.ado.domain.Palabra;
+import com.ado.service.NivelService;
 import com.ado.ui.estudiar.EstudiarLayout;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
@@ -23,8 +26,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
@@ -36,7 +38,7 @@ public class PruebaDeTiempoLayout extends Window {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PruebaDeTiempoLayout.class);
 
-	private static final int INTENTOS_MINIMOS = 8;
+	private static final int INTENTOS_MINIMOS = 3;
 	
 	enum MODO {NORMAL,MUERTE_SUBITA}
 	
@@ -44,6 +46,9 @@ public class PruebaDeTiempoLayout extends Window {
 	private EstudiarLayout estudiarLayout;
 	@Autowired
 	private BarraTiempo barraTiempo;
+	@Autowired
+	private NivelService service;
+	
 	private VerticalLayout mainLayout = new VerticalLayout();
 	private VerticalLayout lyOpciones = new VerticalLayout();
 	
@@ -57,14 +62,25 @@ public class PruebaDeTiempoLayout extends Window {
 	private Set<Palabra> errores = new LinkedHashSet<Palabra>();
 	private MODO modo;
 	private int intentos;
+	private ConfirmDialog.Listener ganasteListener;
+
 	
 	boolean attach;
+
+	private String userId;
+	private NivelEnum nivel;
+	private int subNivel;
 	
 	public PruebaDeTiempoLayout() {
 		
 	}
 	
-	public void setDatos(List<Palabra> palabras) {
+	public void setDatos(List<Palabra> palabras, NivelEnum nivel, int subNivel, String userId, org.vaadin.dialogs.ConfirmDialog.Listener ganasteListener) {
+		this.nivel = nivel;
+		this.subNivel = subNivel;
+		this.userId = userId;
+		this.ganasteListener = ganasteListener;
+
 		palabrasSesion.clear();
 //		for(int i = 0 ; i < 8 ; i++){
 //			palabrasSesion.add(palabras.get(i));
@@ -99,7 +115,6 @@ public class PruebaDeTiempoLayout extends Window {
 		mainLayout.addComponent(initBarraTiempo());
 		mainLayout.addComponent(initOpciones());
 		mainLayout.addComponent(hlSpacer);
-//		mainLayout.setComponentAlignment(lblCaracter, Alignment.MIDDLE_CENTER);
 		mainLayout.setComponentAlignment(initBarraTiempo(), Alignment.MIDDLE_CENTER);
 		mainLayout.setComponentAlignment(lyOpciones, Alignment.MIDDLE_CENTER);
 	}
@@ -137,17 +152,6 @@ public class PruebaDeTiempoLayout extends Window {
 		return barraTiempo;
 	}
 
-
-//	private com.vaadin.ui.Component initBarraTiempo() {
-//		barraTiempo.setMin(0.0);
-//		barraTiempo.setMax(3600.0);
-//		barraTiempo.setValue(3600.0);
-//		barraTiempo.setEnabled(false);
-//		barraTiempo.setWidth("600px");
-//		barraTiempo.setStyleName(ValoTheme.SLIDER_NO_INDICATOR);
-//		return barraTiempo;
-//	}
-	
 	private com.vaadin.ui.Component initOpciones() {
 		lyOpciones.setSizeUndefined();
 		lyOpciones.removeAllComponents();
@@ -201,13 +205,11 @@ public class PruebaDeTiempoLayout extends Window {
 	private void seleccionarOpcion(MultilineButton opcionSeleccionada) {
 		intentos++;
 		if(opciones[opcionCorrecta] == opcionSeleccionada) {
-			System.out.println("intentos: " + intentos + " errores: " + errores.size());
 			if(modo == MODO.NORMAL && intentos >= INTENTOS_MINIMOS && (errores.size() ==  0 || intentos/errores.size() > 9)){
 				initModoMuerteSubita();
 			}
 			if(palabrasMuerteSubita.size() == palabrasSesion.size()) {
-				Notification.show("Felicidades, pasaste el nivel!", Type.HUMANIZED_MESSAGE);
-				this.close();
+				ganaste();
 			} else {
 				cargarEjercicio();
 			}
@@ -253,7 +255,7 @@ public class PruebaDeTiempoLayout extends Window {
 			opciones[i].setEnabled(true);
 			opciones[i].setPalabra(next);
 			if(palabraNueva == opciones[i].getPalabra()){
-				lblCaracter.setValue(next.getPalabra());
+				lblCaracter.setValue(next.getCaracter());
 				this.opcionCorrecta = i; 
 			}
 		}
@@ -287,11 +289,19 @@ public class PruebaDeTiempoLayout extends Window {
 		return palabraNueva;
 	}
 	
+	private void ganaste() {
+		service.saveAvance(userId, nivel, subNivel);
+		ConfirmDialog.show(UI.getCurrent(), "Congratulations!", "You learn the level!","Save & Reload Page", "Only Save", ganasteListener);
+		this.close();
+	}
+	
 	public void gameOver() {
 		errores.add(opciones[opcionCorrecta].getPalabra());
-		((com.ado.ChineseApplication.VaadinUI)getParent()).addWindow(estudiarLayout);
-		close();
-		estudiarLayout.setDatos(new ArrayList<Palabra>(errores));
+		if(((com.ado.ChineseApplication.VaadinUI)getParent())!= null) {
+			((com.ado.ChineseApplication.VaadinUI)getParent()).addWindow(estudiarLayout);
+			close();
+			estudiarLayout.setDatos(new ArrayList<Palabra>(errores));
+		}
 	}
 	
 	private void initModoNormal() {

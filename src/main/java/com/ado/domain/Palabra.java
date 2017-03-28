@@ -2,19 +2,19 @@ package com.ado.domain;
 
 public class Palabra implements Comparable<Palabra>{
 
-	private String palabra;
+	private String caracter;
 	private String significado;
 	private String pingin;
 	
 	public Palabra() {
 	}
 
-	public String getPalabra() {
-		return palabra;
+	public String getCaracter() {
+		return caracter;
 	}
 
-	public void setPalabra(String palabra) {
-		this.palabra = palabra;
+	public void setCaracter(String caracter) {
+		this.caracter = caracter;
 	}
 
 	public String getSignificado() {
@@ -35,7 +35,7 @@ public class Palabra implements Comparable<Palabra>{
 
 	@Override
 	public String toString() {
-		return "Palabra [palabra=" + palabra + ", significado=" + significado
+		return "Palabra [palabra=" + caracter + ", significado=" + significado
 				+ ", pingin=" + pingin + "]";
 	}
 

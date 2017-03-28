@@ -14,7 +14,7 @@ public class BarraTiempo extends HorizontalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	private ProgressBar barraTiempo = new ProgressBar();
-
+	private Thread thread;
 	private float speed = 0.05f;
 
 	public BarraTiempo() {
@@ -56,7 +56,7 @@ public class BarraTiempo extends HorizontalLayout {
 	}
 	
 	private void launchProgressUpdater(UI ui) {
-		new Thread() {
+		thread = new Thread() {
 			@Override
 			public void run() {
 				while (barraTiempo.getValue() > 0 - speed) {
@@ -65,12 +65,18 @@ public class BarraTiempo extends HorizontalLayout {
 					} catch (final InterruptedException e) {
 						throw new RuntimeException("Unexpected interruption", e);
 					}
+					if(!BarraTiempo.this.isAttached()) {
+						break;
+					}
 					barraTiempo.setValue(barraTiempo.getValue() - speed);
 				}
-				refreshTime();
-				((PruebaDeTiempoLayout)BarraTiempo.this.getParent().getParent()).gameOver();
+				if(BarraTiempo.this.isAttached()) {
+//					refreshTime();
+					((PruebaDeTiempoLayout)BarraTiempo.this.getParent().getParent()).gameOver();
+				}
 			}
-		}.start();
+		};
+		thread.start();
     }
 	
 	public void setSpeed(float speed){

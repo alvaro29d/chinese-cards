@@ -32,7 +32,7 @@ public class PalabraLayout extends HorizontalLayout {
 		setStyleName(ValoTheme.LAYOUT_CARD);
 		lblCaracter.setStyleName(ValoTheme.LABEL_H1);
 		
-		lblCaracter.setValue(palabra.getPalabra());
+		lblCaracter.setValue(palabra.getCaracter());
 		lblPingin.setValue(palabra.getPingin());
 		lblSignificado.setValue(palabra.getSignificado());
 		

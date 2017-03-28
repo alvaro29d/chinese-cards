@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ado.domain.Nivel;
 import com.ado.domain.Palabra;
@@ -15,6 +16,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -35,6 +37,7 @@ public class NivelesLayout extends VerticalLayout {
 	private EstudiarLayout estudiarLayout;
 	
 	private List<Nivel> niveles;
+	private String userId;
 	
 	private boolean attach;
 	
@@ -56,24 +59,38 @@ public class NivelesLayout extends VerticalLayout {
 	}
 
 	private void buildLayout() {
+		
 		this.niveles = service.getNiveles();
 		removeAllComponents();
+		
 		for (Nivel nivel : niveles) {
 			Label lblNivel = new Label(nivel.getNombre());
 			lblNivel.setSizeUndefined();
 			lblNivel.setStyleName(ValoTheme.LABEL_H2);
+			lblNivel.addStyleName(ValoTheme.LABEL_COLORED);
+			lblNivel.addStyleName(ValoTheme.LABEL_BOLD);
 			addComponent(lblNivel);
 			addComponent(cargarSubniveles(nivel));
+			
+			HorizontalLayout spacer = new HorizontalLayout();
+			spacer.setHeight("20px");
+			addComponent(spacer);
+			
 			setComponentAlignment(lblNivel, Alignment.TOP_CENTER);
 		}
+		HorizontalLayout footer = new HorizontalLayout();
+		footer.setHeight("80px");
+		addComponent(footer);
 	}
 
 	private com.vaadin.ui.Component cargarSubniveles(Nivel nivel) {
 		GridLayout gl = new GridLayout();
 		gl.setSpacing(true);
 		gl.setColumns(5);
-		for(int i = 0; i < nivel.getPalabras().size()/PALABRAS_POR_NIVEL; i++) {
-			gl.addComponent(new SubNivel(nivel, i, PALABRAS_POR_NIVEL, btnEstudiarClickListener, btnPruebaClickListener));
+		List<Boolean> avances = service.getAvanceByUserId(userId, nivel.getNivel());
+		for(int subNivel = 0; subNivel < nivel.getPalabras().size()/PALABRAS_POR_NIVEL; subNivel++) {
+			Boolean avance = avances.size() >= subNivel + 1 ? avances.get(subNivel) : false;
+			gl.addComponent(new SubNivel(nivel, subNivel, PALABRAS_POR_NIVEL,avance, btnEstudiarClickListener, btnPruebaClickListener));
 		}
 		return gl;
 	}
@@ -86,20 +103,35 @@ public class NivelesLayout extends VerticalLayout {
 			SubNivel sn= (SubNivel) event.getButton().getParent().getParent();
 			List<Palabra> palabrasSesion = new ArrayList<Palabra>();
 			palabrasSesion.addAll(sn.getPalabras());
-			pruebaLayout.setDatos(palabrasSesion);
+			pruebaLayout.setDatos(palabrasSesion, sn.getNivel(), sn.getSubNivel(), userId, ganasteListener);
 		}
 	};
+	
+	@SuppressWarnings("serial")
+	private ConfirmDialog.Listener ganasteListener = new ConfirmDialog.Listener() {
+		@Override
+		public void onClose(ConfirmDialog dialog) {
+			if(dialog.isConfirmed()) {
+				NivelesLayout.this.buildLayout();
+			}
+		}
+	};
+		
 	
 	@SuppressWarnings("serial")
 	private ClickListener btnEstudiarClickListener = new ClickListener() {
 		@Override
 		public void buttonClick(ClickEvent event) {
 			UI.getCurrent().addWindow(estudiarLayout);
-			SubNivel sn= (SubNivel) event.getButton().getParent().getParent();
+			SubNivel sn = (SubNivel) event.getButton().getParent().getParent();
 			List<Palabra> palabrasSesion = new ArrayList<Palabra>();
 			palabrasSesion.addAll(sn.getPalabras());
 			estudiarLayout.setDatos(palabrasSesion);
 		}
 	};
+	
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 	
 }
