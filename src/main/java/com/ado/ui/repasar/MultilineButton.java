@@ -43,7 +43,7 @@ public class MultilineButton extends VerticalLayout {
 
 	public void setPalabra(Palabra palabra) {
 		this.palabra = palabra;
-		lblPingin.setValue(palabra.getPingin() + palabra.getCaracter());
+		lblPingin.setValue(palabra.getPingin());
 		lblSignificado.setValue(palabra.getSignificado());
 	}
 	
