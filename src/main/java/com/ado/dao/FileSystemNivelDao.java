@@ -11,7 +11,6 @@ import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 
 import com.ado.domain.Nivel;
@@ -42,7 +41,7 @@ public class FileSystemNivelDao implements NivelDao {
 		LOGGER.debug("get palabras " + nivel);
 		List<Palabra> palabras = new ArrayList<Palabra>();
 		try {
-			File file = new ClassPathResource(String.format(WORD_FILE,nivel)).getFile();
+			File file = new File(String.format(WORD_FILE,nivel));
 			Scanner sc = new Scanner(file);
 			while(sc.hasNextLine()) {
 				palabras.add(parseLinea(sc.nextLine()));
