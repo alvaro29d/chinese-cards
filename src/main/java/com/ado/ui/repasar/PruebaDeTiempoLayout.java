@@ -80,7 +80,7 @@ public class PruebaDeTiempoLayout extends Window {
 		this.userId = userId;
 
 		palabrasSesion.clear();
-		if(nivel == NivelEnum.HSK1 && subNivel == 1){
+		if(nivel == NivelEnum.HSK1 && subNivel == 0){
 			for(int i = 0 ; i < 8 ; i++){
 				palabrasSesion.add(palabras.get(i));
 			}
