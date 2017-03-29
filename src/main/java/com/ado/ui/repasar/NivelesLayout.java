@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ado.domain.Nivel;
 import com.ado.domain.Palabra;
@@ -20,6 +19,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.ui.themes.ValoTheme;
 
 @Component
@@ -103,20 +104,18 @@ public class NivelesLayout extends VerticalLayout {
 			SubNivel sn= (SubNivel) event.getButton().getParent().getParent();
 			List<Palabra> palabrasSesion = new ArrayList<Palabra>();
 			palabrasSesion.addAll(sn.getPalabras());
-			pruebaLayout.setDatos(palabrasSesion, sn.getNivel(), sn.getSubNivel(), userId, ganasteListener);
+			pruebaLayout.setDatos(palabrasSesion, sn.getNivel(), sn.getSubNivel(), userId);
+			pruebaLayout.addCloseListener(pruebaLayoutCloseListener);
 		}
 	};
 	
 	@SuppressWarnings("serial")
-	private ConfirmDialog.Listener ganasteListener = new ConfirmDialog.Listener() {
+	private CloseListener pruebaLayoutCloseListener = new CloseListener() {
 		@Override
-		public void onClose(ConfirmDialog dialog) {
-			if(dialog.isConfirmed()) {
-				NivelesLayout.this.buildLayout();
-			}
+		public void windowClose(CloseEvent e) {
+			NivelesLayout.this.buildLayout();
 		}
 	};
-		
 	
 	@SuppressWarnings("serial")
 	private ClickListener btnEstudiarClickListener = new ClickListener() {

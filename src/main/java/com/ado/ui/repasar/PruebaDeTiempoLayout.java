@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ado.domain.NivelEnum;
 import com.ado.domain.Palabra;
@@ -43,6 +42,8 @@ public class PruebaDeTiempoLayout extends Window {
 	enum MODO {NORMAL,MUERTE_SUBITA}
 	
 	@Autowired
+	private GanasteLayout ganasteLayout;
+	@Autowired
 	private EstudiarLayout estudiarLayout;
 	@Autowired
 	private BarraTiempo barraTiempo;
@@ -62,8 +63,6 @@ public class PruebaDeTiempoLayout extends Window {
 	private Set<Palabra> errores = new LinkedHashSet<Palabra>();
 	private MODO modo;
 	private int intentos;
-	private ConfirmDialog.Listener ganasteListener;
-
 	
 	boolean attach;
 
@@ -75,17 +74,19 @@ public class PruebaDeTiempoLayout extends Window {
 		
 	}
 	
-	public void setDatos(List<Palabra> palabras, NivelEnum nivel, int subNivel, String userId, org.vaadin.dialogs.ConfirmDialog.Listener ganasteListener) {
+	public void setDatos(List<Palabra> palabras, NivelEnum nivel, int subNivel, String userId) {
 		this.nivel = nivel;
 		this.subNivel = subNivel;
 		this.userId = userId;
-		this.ganasteListener = ganasteListener;
 
 		palabrasSesion.clear();
-//		for(int i = 0 ; i < 8 ; i++){
-//			palabrasSesion.add(palabras.get(i));
-//		}
-		palabrasSesion.addAll(palabras);
+		if(nivel == NivelEnum.HSK1 && subNivel == 1){
+			for(int i = 0 ; i < 8 ; i++){
+				palabrasSesion.add(palabras.get(i));
+			}
+		} else {
+			palabrasSesion.addAll(palabras);
+		}
 		initModoNormal();
 		cargarEjercicio();
 	}
@@ -106,6 +107,7 @@ public class PruebaDeTiempoLayout extends Window {
 		setResizable(false);
 		setWidth("800px");
 		setModal(true);
+		setVisible(true);
 		
 		HorizontalLayout hlSpacer = new HorizontalLayout();
 		hlSpacer.setHeight("10px");
@@ -183,11 +185,19 @@ public class PruebaDeTiempoLayout extends Window {
 		return lyOpciones;
 	}
 	
+	@SuppressWarnings("serial")
 	private void setListeners() {
 		this.attach = true;
 		for(MultilineButton opcion : opciones) {
 			opcion.addLayoutClickListener(btnOpcionLayoutClickListener);
 		}
+		
+		ganasteLayout.addCloseListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				close();
+			}
+		});
 	}
 
 	@SuppressWarnings("serial")
@@ -281,23 +291,22 @@ public class PruebaDeTiempoLayout extends Window {
 			while(palabrasMuerteSubita.size() == cantMuerteSubita) {
 				int indexPalabraNueva = RandomUtils.nextInt(0,palabrasSesion.size());
 				palabraNueva = palabrasSesion.get(indexPalabraNueva);
-				System.out.println(palabraNueva.getPingin());
 				palabrasMuerteSubita.add(palabraNueva);
 			}
-			System.out.println("nro muerte subita: " + palabrasMuerteSubita.size() + " palabraNueva: " + palabraNueva.getPingin());
 		}
 		return palabraNueva;
 	}
 	
 	private void ganaste() {
 		service.saveAvance(userId, nivel, subNivel);
-		ConfirmDialog.show(UI.getCurrent(), "Congratulations!", "You learn the level!","Save & Reload Page", "Only Save", ganasteListener);
-		this.close();
+		setVisible(false);
+		errores.clear();
+		UI.getCurrent().addWindow(ganasteLayout);
 	}
 	
 	public void gameOver() {
 		errores.add(opciones[opcionCorrecta].getPalabra());
-		if(((com.ado.ChineseApplication.VaadinUI)getParent())!= null) {
+		if(((com.ado.ChineseApplication.VaadinUI)getParent())!= null && !errores.isEmpty()) {
 			((com.ado.ChineseApplication.VaadinUI)getParent()).addWindow(estudiarLayout);
 			close();
 			estudiarLayout.setDatos(new ArrayList<Palabra>(errores));
