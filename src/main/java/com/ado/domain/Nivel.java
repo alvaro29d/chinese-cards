@@ -9,7 +9,6 @@ public class Nivel {
 	private String descripcion;
 	private String idioma;
 	private List<Palabra> palabras;
-	private List<Boolean> progreso;
 	
 	public Nivel() {
 	}
@@ -41,13 +40,6 @@ public class Nivel {
 		return palabras;
 	}
 	
-	public List<Boolean> getProgreso() {
-		if(progreso == null) {
-			this.progreso = new ArrayList<Boolean>();
-		}
-		return progreso;
-	}
-
 	public NivelEnum getNivel() {
 		return nivel;
 	}

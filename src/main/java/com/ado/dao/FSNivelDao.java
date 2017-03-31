@@ -18,13 +18,12 @@ import com.ado.domain.NivelEnum;
 import com.ado.domain.Palabra;
 
 @Repository
-public class FileSystemNivelDao implements NivelDao {
-	private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemNivelDao.class);
+public class FSNivelDao {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FSNivelDao.class);
 	
 	private static final String WORD_FILE = "words" + File.separator + "%s.txt";
 	private static final String USER_DATA_FILE = "user_data" + File.separator + "%s-%s.txt";
 	
-	@Override
 	public List<Nivel> getNiveles() {
 		List<Nivel> niveles = new ArrayList<Nivel>();
 		for(NivelEnum nivel : NivelEnum.values()) {
@@ -37,7 +36,7 @@ public class FileSystemNivelDao implements NivelDao {
 		return niveles;
 	}
 
-	private List<Palabra> getPalabrasByNivel(String nivel) {
+	public List<Palabra> getPalabrasByNivel(String nivel) {
 		LOGGER.debug("get palabras " + nivel);
 		List<Palabra> palabras = new ArrayList<Palabra>();
 		try {
@@ -68,7 +67,6 @@ public class FileSystemNivelDao implements NivelDao {
 	}
 	
 
-	@Override
 	public void saveAvance(String uid, NivelEnum nivel, int subNivel) {
 		try {
 			List<Boolean> avances = getAvanceByUserId(uid, nivel);
@@ -88,7 +86,6 @@ public class FileSystemNivelDao implements NivelDao {
 		}
 	}
 
-	@Override
 	public List<Boolean> getAvanceByUserId(String uid, NivelEnum nivel) {
 		List<Boolean> avance = new ArrayList<Boolean>();
 		if(new File(String.format(USER_DATA_FILE,nivel,uid)).exists()){

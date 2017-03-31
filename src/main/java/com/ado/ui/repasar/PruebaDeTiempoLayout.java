@@ -126,7 +126,6 @@ public class PruebaDeTiempoLayout extends Window {
 		header.setColumns(3);
 		header.setWidth("780px");
 		
-		
 		VerticalLayout left = new VerticalLayout();
 		left.setWidth("260px");
 		VerticalLayout center = new VerticalLayout();
@@ -210,19 +209,17 @@ public class PruebaDeTiempoLayout extends Window {
 		}
 	};
 
-	
-
 	private void seleccionarOpcion(MultilineButton opcionSeleccionada) {
 		intentos++;
 		if(opciones[opcionCorrecta] == opcionSeleccionada) {
 			if(modo == MODO.NORMAL && intentos >= INTENTOS_MINIMOS && (errores.size() ==  0 || intentos/errores.size() > 9)){
 				initModoMuerteSubita();
 			}
-			if(palabrasMuerteSubita.size() == palabrasSesion.size()) {
+//			if(palabrasMuerteSubita.size() == palabrasSesion.size()) {
 				ganaste();
-			} else {
-				cargarEjercicio();
-			}
+//			} else {
+//				cargarEjercicio();
+//			}
 		} else {
 			if(modo == MODO.MUERTE_SUBITA) {
 				gameOver();
@@ -233,7 +230,6 @@ public class PruebaDeTiempoLayout extends Window {
 				deshabilitarOtro();
 			}
 		}
-		
 	}
 
 	private void deshabilitarOtro() {
@@ -331,6 +327,5 @@ public class PruebaDeTiempoLayout extends Window {
 		lblPalabrasRestantes.setValue(String.valueOf(palabrasSesion.size()));
 		palabrasMuerteSubita.clear();
 	}
-	
 
 }
