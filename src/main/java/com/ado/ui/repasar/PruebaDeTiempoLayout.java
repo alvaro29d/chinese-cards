@@ -78,7 +78,8 @@ public class PruebaDeTiempoLayout extends Window {
 		this.nivel = nivel;
 		this.subNivel = subNivel;
 		this.userId = userId;
-
+		setVisible(true);
+		
 		palabrasSesion.clear();
 		if(nivel == NivelEnum.HSK1 && subNivel == 0){
 			for(int i = 0 ; i < 8 ; i++){
