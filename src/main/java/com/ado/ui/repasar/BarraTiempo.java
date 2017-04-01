@@ -1,5 +1,7 @@
 package com.ado.ui.repasar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,7 @@ import com.vaadin.ui.UI;
 @Scope("prototype")
 public class BarraTiempo extends HorizontalLayout {
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = LoggerFactory.getLogger(BarraTiempo.class);
 	
 	private ProgressBar barraTiempo = new ProgressBar();
 	private Thread thread;
@@ -55,8 +58,17 @@ public class BarraTiempo extends HorizontalLayout {
 		launchProgressUpdater(UI.getCurrent());
 	}
 	
-	public synchronized void setValueSync(Float value){
-		barraTiempo.setValue(value);
+	public void setValueSync(Float value){
+		this.getParent().getParent().getUI().getSession().getLockInstance().lock();
+		try {
+		   barraTiempo.setValue(value);
+		}catch(Exception e) {
+			LOGGER.error("Error al modificar la barra de tiempo",e);
+		} finally {
+			this.getParent().getParent().getUI().getSession().getLockInstance().unlock();
+		}
+		
+		
 	}
 	
 	private void launchProgressUpdater(UI ui) {
@@ -75,7 +87,6 @@ public class BarraTiempo extends HorizontalLayout {
 					setValueSync(barraTiempo.getValue() - speed);
 				}
 				if(BarraTiempo.this.isAttached()) {
-//					refreshTime();
 					((PruebaDeTiempoLayout)BarraTiempo.this.getParent().getParent()).gameOver();
 				}
 			}

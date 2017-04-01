@@ -37,7 +37,7 @@ public class PruebaDeTiempoLayout extends Window {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PruebaDeTiempoLayout.class);
 
-	private static final int INTENTOS_MINIMOS = 3;
+	private static final int ACIERTOS_SEGUIDOS_MINIMOS = 9;
 	
 	enum MODO {NORMAL,MUERTE_SUBITA}
 	
@@ -62,7 +62,7 @@ public class PruebaDeTiempoLayout extends Window {
 	private int opcionCorrecta;
 	private Set<Palabra> errores = new LinkedHashSet<Palabra>();
 	private MODO modo;
-	private int intentos;
+	private int intentosSeguidos;
 	
 	boolean attach;
 
@@ -211,9 +211,9 @@ public class PruebaDeTiempoLayout extends Window {
 	};
 
 	private void seleccionarOpcion(MultilineButton opcionSeleccionada) {
-		intentos++;
 		if(opciones[opcionCorrecta] == opcionSeleccionada) {
-			if(modo == MODO.NORMAL && intentos >= INTENTOS_MINIMOS && (errores.size() ==  0 || intentos/errores.size() > 9)){
+			intentosSeguidos++;
+			if(modo == MODO.NORMAL && intentosSeguidos >= ACIERTOS_SEGUIDOS_MINIMOS){
 				initModoMuerteSubita();
 			}
 			if(palabrasMuerteSubita.size() == palabrasSesion.size()) {
@@ -225,6 +225,7 @@ public class PruebaDeTiempoLayout extends Window {
 			if(modo == MODO.MUERTE_SUBITA) {
 				gameOver();
 			} else {
+				intentosSeguidos = 0;
 				errores.add(opciones[opcionCorrecta].getPalabra());
 				opcionSeleccionada.removeLayoutClickListener(btnOpcionLayoutClickListener);
 				opcionSeleccionada.setEnabled(false);
@@ -311,9 +312,8 @@ public class PruebaDeTiempoLayout extends Window {
 	}
 	
 	private void initModoNormal() {
-		System.out.println("initNormal");
 		errores.clear();
-		intentos = 0;
+		intentosSeguidos = 0;
 		this.modo = MODO.NORMAL;
 		barraTiempo.refreshTime();
 		lblPalabrasRestantes.setVisible(false);
@@ -321,7 +321,6 @@ public class PruebaDeTiempoLayout extends Window {
 	}
 	
 	private void initModoMuerteSubita() {
-		System.out.println("initMuerteSubita, errores: " + errores.size() + " intentos: "+ intentos);
 		this.modo = MODO.MUERTE_SUBITA;
 		barraTiempo.refreshTime();
 		lblPalabrasRestantes.setVisible(true);
