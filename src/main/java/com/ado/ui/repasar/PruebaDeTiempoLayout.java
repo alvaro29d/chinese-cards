@@ -81,13 +81,13 @@ public class PruebaDeTiempoLayout extends Window {
 		setVisible(true);
 		
 		palabrasSesion.clear();
-		if(nivel == NivelEnum.HSK1 && subNivel == 0){
-			for(int i = 0 ; i < 8 ; i++){
-				palabrasSesion.add(palabras.get(i));
-			}
-		} else {
+//		if(nivel == NivelEnum.HSK1 && subNivel == 0){
+//			for(int i = 0 ; i < 8 ; i++){
+//				palabrasSesion.add(palabras.get(i));
+//			}
+//		} else {
 			palabrasSesion.addAll(palabras);
-		}
+//		}
 		initModoNormal();
 		cargarEjercicio();
 	}
@@ -216,11 +216,11 @@ public class PruebaDeTiempoLayout extends Window {
 			if(modo == MODO.NORMAL && intentos >= INTENTOS_MINIMOS && (errores.size() ==  0 || intentos/errores.size() > 9)){
 				initModoMuerteSubita();
 			}
-//			if(palabrasMuerteSubita.size() == palabrasSesion.size()) {
+			if(palabrasMuerteSubita.size() == palabrasSesion.size()) {
 				ganaste();
-//			} else {
-//				cargarEjercicio();
-//			}
+			} else {
+				cargarEjercicio();
+			}
 		} else {
 			if(modo == MODO.MUERTE_SUBITA) {
 				gameOver();

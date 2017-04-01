@@ -22,13 +22,13 @@ public class BarraTiempo extends HorizontalLayout {
 	}
 	
 	public void refreshTime() {
-		barraTiempo.setValue(1f);
+		setValueSync(1f);
 		speed = 0.05f;
 	}
 	
 	public void addTime(float tiempo) {
 		if(barraTiempo.getValue()+ tiempo > 1.0) {
-			barraTiempo.setValue(1f);
+			setValueSync(1f);
 		} else {
 			barraTiempo.setValue(barraTiempo.getValue() + tiempo);
 		}
@@ -46,13 +46,17 @@ public class BarraTiempo extends HorizontalLayout {
 		setSpacing(true);
 		setHeight("38px");
 		barraTiempo.setWidth("600px");
-		barraTiempo.setValue(1.0f);
+		setValueSync(1.0f);
 		
 		addComponent(barraTiempo);
 		setComponentAlignment(barraTiempo, Alignment.TOP_CENTER);
 		
 		UI.getCurrent().setPollInterval(500);
 		launchProgressUpdater(UI.getCurrent());
+	}
+	
+	public synchronized void setValueSync(Float value){
+		barraTiempo.setValue(value);
 	}
 	
 	private void launchProgressUpdater(UI ui) {
@@ -68,7 +72,7 @@ public class BarraTiempo extends HorizontalLayout {
 					if(!BarraTiempo.this.isAttached()) {
 						break;
 					}
-					barraTiempo.setValue(barraTiempo.getValue() - speed);
+					setValueSync(barraTiempo.getValue() - speed);
 				}
 				if(BarraTiempo.this.isAttached()) {
 //					refreshTime();
@@ -88,7 +92,7 @@ public class BarraTiempo extends HorizontalLayout {
 	} 
 	
 	public void setTime(float value) {
-		barraTiempo.setValue(value);
+		setValueSync(value);
 	}
 
 }
