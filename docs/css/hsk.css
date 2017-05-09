@@ -1,4 +1,8 @@
-   h2 {
+  p {
+    color:#818181;
+  }
+  
+  h2 {
       font-size: 24px;
       text-transform: uppercase;
       color: #303030;
@@ -14,8 +18,45 @@
   } 
 
   .feature {
-  	margin:30px 0px;
+    padding:40px 10px;
+    margin:20px 30px;
+    border-radius: 4px;
+  	
+    border: 1px solid #d8d8d8;
+  
+  border-bottom-width: 2px;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  -webkit-box-shadow: none;
+     -moz-box-shadow: none;
+          box-shadow: none;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
   }
+
+  .feature p {
+    height: 56px;
+  }
+
+  .card {
+  padding-top: 20px;
+  margin: 10px 0 20px 0;
+  background-color: #ffffff;
+  border: 1px solid #d8d8d8;
+  border-top-width: 0;
+  border-bottom-width: 2px;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  -webkit-box-shadow: none;
+     -moz-box-shadow: none;
+          box-shadow: none;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
 
   .indianred {
   	color:indianred;
@@ -31,4 +72,12 @@
 
 	.star-light.text-success {
   	border-color:#3c763d;	
-  }  
+  }
+
+  .bg-gray {
+    background-color: #f6f6f6; 
+  }
+
+  .bottom {
+    margin-top: 30px;
+  }
