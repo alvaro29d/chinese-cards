@@ -1,1 +1,1 @@
-#Applicaion para practicar el vocabulario de los examenes HSK
+Aplicacion para practicar el vocabulario de los examenes HSK
